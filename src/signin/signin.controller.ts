@@ -43,7 +43,7 @@ export class SigninController {
       }
 
       if (!verifyCpf(login)) {
-        res.status(HttpStatus.UNPROCESSABLE_ENTITY).send({
+        res.code(HttpStatus.UNPROCESSABLE_ENTITY).send({
           message: "CPF inválido!",
         });
         return;
@@ -63,12 +63,12 @@ export class SigninController {
         },
       });
 
-      res.status(HttpStatus.OK).send({
+      res.code(HttpStatus.OK).send({
         message: `Usuário ${email} criado com sucesso!`,
       });
     } catch (err) {
       console.log(err);
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+      res.code(HttpStatus.INTERNAL_SERVER_ERROR).send({
         message: "Não foi possível criar o usuário!",
       });
     }

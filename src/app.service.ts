@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable } from "@nestjs/common";
+import { getPort } from "./functions/port";
 
 @Injectable()
 export class AppService {
   getHello(): string {
-    return 'Hello World!';
+    return `API Runing on port ${getPort()}!`;
   }
 }

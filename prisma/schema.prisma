@@ -12,12 +12,12 @@ model login {
   login                          String    @unique
   password                       String
   change_password                Boolean?  @default(true)
-  email                          String?   
+  email                          String?
   ies                            String?
   message                        String?   @default("")
   name                           String?
   titulos                        titulos[]
-  tokenRedefinicaoSenha          String?  @unique
+  tokenRedefinicaoSenha          String?   @unique
   expiracaoTokenRedefinicaoSenha DateTime?
 }
 

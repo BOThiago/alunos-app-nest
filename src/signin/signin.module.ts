@@ -1,14 +1,10 @@
-import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
+import { Module } from "@nestjs/common";
+import { AuthService } from "../auth/auth.service";
 import { SigninController } from "./signin.controller";
 import { PrismaService } from "../prisma/prisma.service";
-import { VerifyAccessTokenMiddleware } from "./../middlewares/verifyAccessToken.middleware";
 
 @Module({
+  providers: [AuthService, PrismaService],
   controllers: [SigninController],
-  providers: [PrismaService],
 })
-export class SigninModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(VerifyAccessTokenMiddleware).forRoutes(SigninController);
-  }
-}
+export class SigninModule {}

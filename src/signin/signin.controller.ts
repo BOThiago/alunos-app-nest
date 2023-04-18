@@ -1,76 +1,30 @@
-import {
-  Controller,
-  Put,
-  UseInterceptors,
-  Req,
-  Res,
-  BadRequestException,
-  HttpStatus,
-} from "@nestjs/common";
-import { FastifyRequest, FastifyReply } from "fastify";
-import { PrismaService } from "../prisma/prisma.service";
-import { verifyCpf, cleanCpf } from "../functions/cpf";
-import { VerifyAccessTokenMiddleware } from "../middlewares/verifyAccessToken.middleware";
-import * as bcryptjs from "bcryptjs";
+import { Controller, Post, Body, Res, HttpStatus } from "@nestjs/common";
+import { Response } from "express";
+import { AuthService } from "../auth/auth.service";
 
 @Controller("signin")
 export class SigninController {
-  constructor(private prisma: PrismaService) {}
+  constructor(private authService: AuthService) {}
 
-  @Put()
-  @UseInterceptors(VerifyAccessTokenMiddleware)
-  async createUser(
-    @Req()
-    req: FastifyRequest<{
-      Body: {
-        login: string;
-        password: string;
-        email: string;
-        ies: string;
-        message: string;
-        name: string;
-      };
-    }>,
-    @Res() res: FastifyReply
-  ): Promise<void> {
+  @Post()
+  async signin(
+    @Body("login") login: string,
+    @Body("password") password: string,
+    @Res() res: Response
+  ): Promise<any> {
     try {
-      const { login, password, email, ies, message, name } = req.body;
+      const result = await this.authService.authenticate(login, password);
 
-      if (!login || !password) {
-        throw new BadRequestException(
-          "É necessário os parâmetros de login e senha!"
-        );
+      if (result.success) {
+        return res.status(HttpStatus.OK).json(result);
+      } else {
+        return res.status(result.statusCode).json(result.message);
       }
-
-      if (!verifyCpf(login)) {
-        res.code(HttpStatus.UNPROCESSABLE_ENTITY).send({
-          message: "CPF inválido!",
-        });
-        return;
-      }
-
-      const hashedPassword = await bcryptjs.hash(password, 10);
-
-      await this.prisma.login.create({
-        data: {
-          login: cleanCpf(login),
-          password: hashedPassword,
-          change_password: true,
-          email,
-          ies,
-          message: message || "",
-          name,
-        },
-      });
-
-      res.code(HttpStatus.OK).send({
-        message: `Usuário ${email} criado com sucesso!`,
-      });
-    } catch (err) {
-      console.log(err);
-      res.code(HttpStatus.INTERNAL_SERVER_ERROR).send({
-        message: "Não foi possível criar o usuário!",
-      });
+    } catch (error) {
+      console.error(error);
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json("Não foi possível logar!");
     }
   }
 }

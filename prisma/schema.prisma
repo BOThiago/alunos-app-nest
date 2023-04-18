@@ -1,0 +1,38 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model login {
+  id                             Int       @id @default(autoincrement())
+  login                          String    @unique
+  password                       String
+  change_password                Boolean?  @default(true)
+  email                          String?   
+  ies                            String?
+  message                        String?   @default("")
+  name                           String?
+  titulos                        titulos[]
+  tokenRedefinicaoSenha          String?  @unique
+  expiracaoTokenRedefinicaoSenha DateTime?
+}
+
+model titulos {
+  id              Int      @id @default(autoincrement())
+  valor           Float
+  data_vencimento DateTime
+  boleto_codigo   String?
+  boleto_url      String?
+  curso           String?
+  favorecido      String?
+  login_id        Int
+  pix_codigo      String?
+  pix_url         String?
+  situacao        String?
+  external_code   String?  @unique @db.VarChar(255)
+  login           login    @relation(fields: [login_id], references: [id])
+}

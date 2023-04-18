@@ -1,0 +1,1 @@
+alter table "login" add column "matricula" varchar(255);

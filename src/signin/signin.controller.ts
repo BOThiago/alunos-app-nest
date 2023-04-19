@@ -1,6 +1,14 @@
-import { Controller, Post, Body, Res, HttpStatus } from "@nestjs/common";
+import {
+  Controller,
+  Post,
+  Body,
+  Res,
+  HttpStatus,
+  UseGuards,
+} from "@nestjs/common";
 import { Response } from "express";
 import { AuthService } from "../auth/auth.service";
+import { JwtAuthGuard } from "src/auth/jwt-auth.guard";
 
 @Controller("signin")
 export class SigninController {

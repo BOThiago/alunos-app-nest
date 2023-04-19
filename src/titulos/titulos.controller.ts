@@ -13,18 +13,30 @@ import {
 } from "@nestjs/common";
 import { AuthService } from "../auth/auth.service";
 import { PrismaService } from "./../prisma/prisma.service";
-import { VerifyAccessTokenMiddleware } from "../middlewares/verifyAccessToken.middleware";
-
 import JSONbig from "json-bigint";
 import { Response } from "express";
+import { JwtAuthGuard } from "src/auth/jwt-auth.guard";
+
+export interface createTituloDto {
+  valor: Number;
+  data_vencimento: Date;
+  boleto_codigo: string;
+  boleto_url: string;
+  curso: string;
+  favorecido: string;
+  login_id: Number;
+  pix_codigo: string;
+  pix_url: string;
+  situacao: string;
+  external_code: string;
+}
 
 @Controller("titulos")
 export class TitulosController {
   constructor(private prisma: PrismaService) {}
 
   @Get("/")
-  @UseInterceptors(VerifyAccessTokenMiddleware)
-  @UseGuards(AuthService)
+  @UseGuards(JwtAuthGuard)
   async findManyTitulos(@Res() res: Response): Promise<void> {
     try {
       const idUser = res.locals.userID;
@@ -55,54 +67,55 @@ export class TitulosController {
     }
   }
 
-  //   @Post("/")
-  //   @UseGuards(AuthService)
-  //   async createTitulo(
-  //     @Req() req,
-  //     @Body() createTituloDto:
-  //   ): Promise<{ message: string }> {
-  //     try {
-  //       const idUser = req.user.id;
-  //       const verifyUser = await this.prisma.login.findUnique({
-  //         where: {
-  //           login: createTituloDto.login,
-  //         },
-  //         select: {
-  //           id: true,
-  //         },
-  //       });
+  @Post("/:id")
+  @UseGuards(AuthService)
+  async createTitulo(
+    // @Req() req,
+    @Body() createTituloDto
+  ): Promise<{ message: string }> {
+    try {
+      // req.user.id;
+      // AuthService;
+      const verifyUser = await this.prisma.login.findFirst({
+        where: {
+          login: createTituloDto.login,
+        },
+        select: {
+          id: true,
+        },
+      });
 
-  //       if (!verifyUser) {
-  //         throw new BadRequestException("Usuário não encontrado!");
-  //       }
+      if (!verifyUser) {
+        throw new BadRequestException("Usuário não encontrado!");
+      }
 
-  //       const data_vencimentoISO = new Date(createTituloDto.data_vencimento);
-  //       data_vencimentoISO.setHours(0, 5, 37, 0);
+      const data_vencimentoISO = new Date(createTituloDto.data_vencimento);
+      data_vencimentoISO.setHours(0, 5, 37, 0);
 
-  //       const newTitulo = await this.prisma.titulos.create({
-  //         data: {
-  //           valor: createTituloDto.valor,
-  //           data_vencimento: data_vencimentoISO.toISOString(),
-  //           boleto_codigo: createTituloDto.boleto_codigo,
-  //           boleto_url: createTituloDto.boleto_url,
-  //           curso: createTituloDto.curso,
-  //           favorecido: createTituloDto.favorecido,
-  //           pix_codigo: createTituloDto.pix_codigo,
-  //           pix_url: createTituloDto.pix_url,
-  //           situacao: createTituloDto.situacao,
-  //           login_id: verifyUser.id,
-  //           external_code: createTituloDto.external_code,
-  //         },
-  //       });
+      await this.prisma.titulos.create({
+        data: {
+          valor: parseFloat(createTituloDto.valor),
+          data_vencimento: data_vencimentoISO.toISOString(),
+          boleto_codigo: createTituloDto.boleto_codigo,
+          boleto_url: createTituloDto.boleto_url,
+          curso: createTituloDto.curso,
+          favorecido: createTituloDto.favorecido,
+          pix_codigo: createTituloDto.pix_codigo,
+          pix_url: createTituloDto.pix_url,
+          situacao: createTituloDto.situacao,
+          login_id: Number(verifyUser.id),
+          external_code: createTituloDto.external_code,
+        },
+      });
 
-  //       return {
-  //         message: "Título adicionado com sucesso!",
-  //       };
-  //     } catch (err) {
-  //       console.log(err);
-  //       throw new InternalServerErrorException(
-  //         "Não foi possível adicionar o título!"
-  //       );
-  //     }
-  //   }
+      return {
+        message: "Título adicionado com sucesso!",
+      };
+    } catch (err) {
+      console.log(err);
+      throw new InternalServerErrorException(
+        "Não foi possível adicionar o título!"
+      );
+    }
+  }
 }

@@ -7,17 +7,20 @@ import {
   Res,
   BadRequestException,
   HttpStatus,
+  UseGuards,
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { verifyCpf, cleanCpf } from "../functions/cpf";
 import { VerifyAccessTokenMiddleware } from "../middlewares/verifyAccessToken.middleware";
 import * as bcryptjs from "bcryptjs";
+import { JwtAuthGuard } from "src/auth/jwt-auth.guard";
 
 @Controller("login")
 export class LoginController {
   constructor(private prisma: PrismaService) {}
 
   @Put()
+  @UseGuards(JwtAuthGuard)
   @UseInterceptors(VerifyAccessTokenMiddleware)
   async createUser(
     @Req() req: Request,

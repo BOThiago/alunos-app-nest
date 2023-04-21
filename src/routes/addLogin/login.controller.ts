@@ -2,16 +2,14 @@ import { Request, Response, NextFunction } from "express";
 import {
   Controller,
   Put,
-  UseInterceptors,
   Req,
   Res,
   BadRequestException,
   HttpStatus,
   UseGuards,
 } from "@nestjs/common";
-import { PrismaService } from "../prisma/prisma.service";
-import { verifyCpf, cleanCpf } from "../functions/cpf";
-import { VerifyAccessTokenMiddleware } from "../middlewares/verifyAccessToken.middleware";
+import { PrismaService } from "../../database/prisma.service";
+import { verifyCpf, cleanCpf } from "../../functions/cpf";
 import * as bcryptjs from "bcryptjs";
 import { JwtAuthGuard } from "src/auth/jwt-auth.guard";
 
@@ -21,7 +19,6 @@ export class LoginController {
 
   @Put()
   @UseGuards(JwtAuthGuard)
-  @UseInterceptors(VerifyAccessTokenMiddleware)
   async createUser(
     @Req() req: Request,
     @Res() res: Response,

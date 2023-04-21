@@ -1,11 +1,11 @@
 import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { PassportStrategy } from "@nestjs/passport";
 import { ExtractJwt, Strategy } from "passport-jwt";
-import { UserService } from "../user/user.service";
+import { LoginService } from "../models/login/login.service";
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(private userService: UserService) {
+  constructor(private LoginService: LoginService) {
     super({
       jwtFromRequest: ExtractJwt.fromHeader("x-access-token"),
       ignoreExpiration: false,
@@ -14,7 +14,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: { login: string }) {
-    const user = await this.userService.findByLogin(payload.login);
+    const user = await this.LoginService.findByLogin(payload.login);
+
+    if (user === null) {
+      throw new UnauthorizedException({ message: "Token Expirado" });
+    }
 
     if (!user) {
       throw new UnauthorizedException();

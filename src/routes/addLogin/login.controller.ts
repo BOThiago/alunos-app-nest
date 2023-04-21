@@ -11,7 +11,7 @@ import {
 import { PrismaService } from "../../database/prisma.service";
 import { verifyCpf, cleanCpf } from "../../functions/cpf";
 import * as bcryptjs from "bcryptjs";
-import { JwtAuthGuard } from "src/auth/jwt-auth.guard";
+import { JwtAuthGuard } from "../../auth/jwt-auth.guard";
 
 @Controller("login")
 export class LoginController {

@@ -1,11 +1,4 @@
-import {
-  Controller,
-  Post,
-  Body,
-  Res,
-  HttpStatus,
-  UseGuards,
-} from "@nestjs/common";
+import { Controller, Post, Body, Res, HttpStatus } from "@nestjs/common";
 import { Response } from "express";
 import { AuthService } from "../../auth/auth.service";
 
@@ -25,13 +18,15 @@ export class SigninController {
       if (result.success) {
         return res.status(HttpStatus.OK).json(result);
       } else {
-        return res.status(result.statusCode).json(result.message);
+        return res
+          .status(result.statusCode)
+          .json({ message: "Usuário ou senha inválidos!" });
       }
     } catch (error) {
       console.error(error);
       return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json("Não foi possível logar!");
+        .json({ message: "Não foi possível logar!" });
     }
   }
 }

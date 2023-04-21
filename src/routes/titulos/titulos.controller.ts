@@ -12,18 +12,16 @@ import {
   Param,
 } from "@nestjs/common";
 import { AuthService } from "../../auth/auth.service";
-import { PrismaService } from "../../database/prisma.service";
-import { JwtAuthGuard } from "src/auth/jwt-auth.guard";
+import { JwtAuthGuard } from "../../auth/jwt-auth.guard";
 import { removeEmpty } from "../../functions/removeEmpty";
 import JSONbig from "json-bigint";
-import { verifyAndDecodeToken } from "src/functions/verifyExpiredToken";
-import { TituloController } from "src/models/titulos/titulo.controller";
+import { verifyAndDecodeToken } from "../../functions/verifyExpiredToken";
+import { TituloController } from "../../models/titulos/titulo.controller";
 import { LoginService } from "./../../models/login/login.service";
 
 @Controller("titulos")
 export class TitulosController {
   constructor(
-    private prisma: PrismaService,
     private tituloController: TituloController,
     private loginService: LoginService
   ) {}
@@ -35,9 +33,9 @@ export class TitulosController {
       const token = String(req.headers["x-access-token"]);
       const decoded = verifyAndDecodeToken(token, res);
 
-      const findTitle = await this.tituloController.findTitles(decoded);
+      const findTitle = await this.tituloController.findTitulos(decoded);
 
-      if (!findTitle) {
+      if (findTitle.length < 1) {
         res.status(HttpStatus.NOT_FOUND).json({
           message: "Nenhum título encontrado!",
         });
@@ -182,7 +180,7 @@ export class TitulosController {
     try {
       const token = String(req.headers["x-access-token"]);
       const decoded = verifyAndDecodeToken(token, res);
-      const findTitle = await this.tituloController.findTitle(decoded, id);
+      const findTitle = await this.tituloController.findTitulo(decoded, id);
 
       if (!findTitle) {
         return res
@@ -216,7 +214,7 @@ export class TitulosController {
       }
 
       const data = removeEmpty(createTituloDtoEc);
-      let titulo = await this.tituloController.findTitleEc(createTituloDtoEc);
+      let titulo = await this.tituloController.findTituloEc(createTituloDtoEc);
 
       if (titulo) {
         await this.tituloController.updateTituloRelaxed(createTituloDtoEc);
@@ -238,7 +236,7 @@ export class TitulosController {
         });
       }
 
-      titulo = await this.tituloController.findTitleExpired(
+      titulo = await this.tituloController.findTitulosExpired(
         createTituloDtoEc,
         decoded
       );

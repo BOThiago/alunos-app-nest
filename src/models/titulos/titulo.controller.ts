@@ -1,8 +1,8 @@
 import { Controller } from "@nestjs/common";
 import { titulos, login } from "@prisma/client";
 import { PrismaService } from "../../database/prisma.service";
-import { cleanCpf } from "src/functions/cpf";
-import { removeEmpty } from "src/functions/removeEmpty";
+import { cleanCpf } from "../../functions/cpf";
+import { removeEmpty } from "../../functions/removeEmpty";
 
 interface Decoded {
   login: string;
@@ -14,7 +14,7 @@ interface Decoded {
 export class TituloController {
   constructor(private prisma: PrismaService) {}
 
-  async findTitles(Decoded: any): Promise<titulos[] | null> {
+  async findTitulos(Decoded: any): Promise<titulos[] | null> {
     const logins = await this.prisma.titulos.findMany({
       where: {
         login: {
@@ -29,7 +29,7 @@ export class TituloController {
     return logins.length > 0 ? logins : null;
   }
 
-  async findTitle(Decoded: any, id: any): Promise<titulos[] | null> {
+  async findTitulo(Decoded: any, id: any): Promise<titulos[] | null> {
     const findTitle = await this.prisma.titulos.findMany({
       where: {
         id: {
@@ -44,7 +44,7 @@ export class TituloController {
     return findTitle.length > 0 ? findTitle : null;
   }
 
-  async findTitleEc(createTituloDtoEc: any): Promise<titulos | null> {
+  async findTituloEc(createTituloDtoEc: any): Promise<titulos | null> {
     let titulo = await this.prisma.titulos.findFirst({
       where: {
         external_code: createTituloDtoEc[10],
@@ -64,7 +64,7 @@ export class TituloController {
     return login;
   }
 
-  async findTitleExpired(
+  async findTitulosExpired(
     createTituloDtoEc: any,
     decoded: any
   ): Promise<titulos | null> {
@@ -81,6 +81,73 @@ export class TituloController {
           gt: date,
           lt: nextDate,
         },
+      },
+    });
+
+    return titulo;
+  }
+
+  async findTitutlosAVencer(decoded: any): Promise<titulos[] | null> {
+    const findTitle = await this.prisma.titulos.findMany({
+      where: {
+        login: {
+          login: decoded.login,
+        },
+        situacao: {
+          not: "pago",
+        },
+        data_vencimento: {
+          gte: new Date(),
+        },
+      },
+    });
+
+    return findTitle;
+  }
+
+  async findPayTitulos(decoded: any): Promise<titulos[] | null> {
+    const findTitle = await this.prisma.titulos.findMany({
+      where: {
+        login: {
+          login: decoded.login,
+        },
+        situacao: {
+          equals: "pago",
+        },
+      },
+    });
+
+    return findTitle;
+  }
+
+  async findTitulosVencidos(decoded: any): Promise<titulos[] | null> {
+    const findTitle = await this.prisma.titulos.findMany({
+      where: {
+        login: {
+          login: decoded.login,
+        },
+        situacao: {
+          not: "Pago",
+        },
+        data_vencimento: {
+          lte: new Date(),
+        },
+      },
+    });
+
+    return findTitle;
+  }
+
+  async findTitulosPendentes(cic: any): Promise<titulos[] | null> {
+    const titulo = await this.prisma.titulos.findMany({
+      where: {
+        login: {
+          login: cic,
+        },
+        situacao: "pendente",
+      },
+      orderBy: {
+        data_vencimento: "asc",
       },
     });
 

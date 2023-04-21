@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { HttpStatus, Injectable } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { LoginService } from "../models/login/login.service";
 import * as bcrypt from "bcrypt";
@@ -26,7 +26,7 @@ export class AuthService {
     if (!isValidPassword) {
       return {
         success: false,
-        statusCode: 401,
+        statusCode: HttpStatus.UNAUTHORIZED,
       };
     }
 
@@ -46,9 +46,10 @@ export class AuthService {
         { login: payload.login },
         {
           secret: process.env.KEYSECRET,
-          expiresIn: "1h",
+          expiresIn: process.env.TIMETOKEN,
         }
       ),
+      expiresIn: process.env.TIMETOKEN,
     };
   }
 }

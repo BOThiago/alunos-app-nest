@@ -1,3 +1,10 @@
+import { PasswordController } from "./routes/password/password.controller";
+import { BotModule } from "./routes/bot/bot.module";
+import { BotController } from "./routes/bot/bot.controller";
+import { TitulosVencidosModule } from "./routes/titulos-vencidos/titulos-vencidos.module";
+import { TitulosVencidosController } from "./routes/titulos-vencidos/titulos-vencidos.controller";
+import { TitulosPagosModule } from "./routes/titulos-pagos/titulos-pagos.module";
+import { TitulosPagosController } from "./routes/titulos-pagos/titulos-pagos.controller";
 import { SigninModule } from "./routes/signin/signin.module";
 import { UserModule } from "./models/login/login.module";
 import { LoginService } from "./models/login/login.service";
@@ -20,6 +27,9 @@ import { TituloController } from "./models/titulos/titulo.controller";
 
 @Module({
   imports: [
+    BotModule,
+    TitulosVencidosModule,
+    TitulosPagosModule,
     SigninModule,
     UserModule,
     AuthModule,
@@ -29,6 +39,10 @@ import { TituloController } from "./models/titulos/titulo.controller";
     TituloModule,
   ],
   controllers: [
+    PasswordController,
+    BotController,
+    TitulosVencidosController,
+    TitulosPagosController,
     AppController,
     LoginController,
     TitulosController,

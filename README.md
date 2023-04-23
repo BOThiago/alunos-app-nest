@@ -111,6 +111,6 @@ npm test
 _Utilizando Yarn_
 yarn test
 
-## Documentação da API
+## Documentação da API (Swagger)
 
 A documentação da API REST pode ser acessada através da URL http://localhost:porta/api após iniciar o aplicativo em modo de desenvolvimento.

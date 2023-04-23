@@ -1,7 +1,7 @@
 import { HttpStatus, Injectable } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { LoginService } from "../models/login/login.service";
-import * as bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 @Injectable()
 export class AuthService {

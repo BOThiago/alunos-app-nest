@@ -4,7 +4,7 @@ import { PrismaService } from "../../database/prisma.service";
 import { cleanCpf } from "../../functions/cpf";
 import { sendEmailDto } from "../dtos/email/send-email-body";
 import { AlterAddress } from "./../dtos/Address/address.body";
-import { Decoded } from "./../../../dist/models/interfaces/decoded.d";
+import { Decoded } from "../../interfaces/decoded";
 @Injectable()
 export class LoginService {
   constructor(private prisma: PrismaService) {}

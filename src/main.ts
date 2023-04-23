@@ -10,10 +10,11 @@ import * as dotenv from "dotenv";
 import * as bodyParser from "body-parser";
 import express from "express";
 import morganMiddleware from "./middlewares/morgan";
+import { UserAdmin } from "./functions/user-admin";
 
 dotenv.config();
 
-async function bootstrap() {
+async function bootstrap(this: any) {
   const app = await NestFactory.create<NestExpressApplication>(
     AppModule,
     new ExpressAdapter(),
@@ -35,6 +36,8 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup("api", app, document);
+
+  UserAdmin();
 
   app.use("/pix", express.static("storage/pix"));
   app.use("/boleto", express.static("storage/pdf"));

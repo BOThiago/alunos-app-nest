@@ -5,69 +5,112 @@
 [circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
 [circleci-url]: https://circleci.com/gh/nestjs/nest
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+# Alunos App Nest
 
-## Description
+O Alunos App Nest é um aplicativo de gerenciamento de alunos desenvolvido com NestJS, um framework Node.js progressivo para construção de aplicações eficientes, escaláveis e fáceis de manter no lado do servidor.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Funcionalidades
 
-## Installation
+- Gerenciamento de Títulos
+- Gerenciamento de Usuários
+- Autenticação JWT
+- Gerenciamento de Email
+- Integração com API REST
+- Testes Automatizados
 
-```bash
-$ npm install
-```
+## Pré-requisitos
 
-## Running the app
+- Node.js v14.x.x ou superior
+- NPM ou Yarn
+- Git
 
-```bash
-# development
-$ npm run start
+## Instalação utilizando Docker
 
-# watch mode
-$ npm run start:dev
+1. No terminal, navegue até a raiz do projeto e execute o comando abaixo para construir a imagem do Docker:
 
-# production mode
-$ npm run start:prod
-```
+_execute no terminal_
 
-## Test
+> docker-compose up -d
 
-```bash
-# unit tests
-$ npm run test
+Este comando cria uma imagem Docker chamada alunos-app-nest com base no conteúdo do arquivo Dockerfile.
 
-# e2e tests
-$ npm run test:e2e
+2. Após a construção da imagem, execute o seguinte comando para iniciar um container com base na imagem criada:
 
-# test coverage
-$ npm run test:cov
-```
+_execute no terminal_
 
-## Support
+> docker run -p porta:porta --name alunos-app-container alunos-app-nest-app
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+Este comando inicia um container chamado alunos-app-container, mapeando o container para a porta desejada do seu computador.
 
-## Stay in touch
+3. Agora a API estará disponível em http://localhost:porta. Para parar o container, use o seguinte comando:
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+_execute no terminal_
 
-## License
+> docker stop alunos-app-container
 
-Nest is [MIT licensed](LICENSE).
+Para remover o container após pará-lo, execute:
+
+docker rm alunos-app-container
+
+#### Lembre-se de que, caso faça alguma alteração no código-fonte, será necessário reconstruir a imagem Docker e reiniciar o container para que as mudanças entrem em vigor.
+
+## Instalação e Execução
+
+1. Clone o repositório:
+
+git clone https://github.com/BOThiago/alunos-app-nest.git
+cd alunos-app-nest
+
+Instale as dependências do projeto:
+
+_Utilizando NPM_
+
+> npm install
+
+> _Utilizando Yarn_
+> yarn install
+
+## Preencha a .env com as variáveis de ambiente
+
+### Crie uma migração:
+
+_Utilizando NPM_
+
+> npx prisma migrate dev
+
+> _Utilizando Yarn_
+> yarn prisma migrate dev
+
+### Gere a migração:
+
+_Utilizando NPM_
+
+> npx prisma generate
+
+> _Utilizando Yarn_
+> yarn prisma generate
+
+### Inicie o aplicativo em modo de desenvolvimento:
+
+_Utilizando NPM_
+
+> npm run start:dev
+
+> _Utilizando Yarn_
+> yarn start:dev
+
+> O aplicativo estará disponível no endereço http://localhost:porta no navegador.
+
+Testes (É necessário criar as variáveis de ambiente em "./src/test/variaveis")
+
+### Para executar os testes, utilize o seguinte comando:
+
+_Utilizando NPM_
+npm test
+
+_Utilizando Yarn_
+yarn test
+
+## Documentação da API
+
+A documentação da API REST pode ser acessada através da URL http://localhost:porta/api após iniciar o aplicativo em modo de desenvolvimento.

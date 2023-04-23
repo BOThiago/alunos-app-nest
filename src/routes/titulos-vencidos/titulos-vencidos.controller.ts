@@ -16,7 +16,7 @@ export class TitulosVencidosController {
       const decoded = verifyAndDecodeToken(token, res);
 
       const findTitle = await this.tituloController.findTitulosVencidos(
-        decoded
+        decoded.login
       );
 
       if (findTitle.length > 0) {

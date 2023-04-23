@@ -33,10 +33,13 @@
     "dotenv": "^16.0.3",
     "json-bigint": "^1.0.0",
     "jsonwebtoken": "^9.0.0",
+    "morgan": "^1.10.0",
+    "nodemailer": "^6.9.1",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
-    "prisma": "^4.12.0"
+    "prisma": "^4.13.0",
+    "winston": "^3.8.2"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",
@@ -50,6 +53,7 @@
     "@types/json-bigint": "^1.0.1",
     "@types/jsonwebtoken": "^9.0.1",
     "@types/node": "^18.15.11",
+    "@types/nodemailer": "^6.4.7",
     "@types/passport-local": "^1.0.35",
     "@types/supertest": "^2.0.11",
     "@typescript-eslint/eslint-plugin": "^5.0.0",

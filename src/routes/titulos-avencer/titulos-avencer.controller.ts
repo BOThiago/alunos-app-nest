@@ -16,7 +16,7 @@ export class TitulosAvencerController {
       const decoded = verifyAndDecodeToken(token, res);
 
       const findTitutlosAVencer =
-        await this.tituloController.findTitutlosAVencer(decoded);
+        await this.tituloController.findTitutlosAVencer(decoded.login);
 
       if (findTitutlosAVencer.length > 0) {
         return res

@@ -1,4 +1,4 @@
-const winston = require("winston");
+import winston from "winston";
 
 const levels = {
   error: 0,
@@ -32,7 +32,7 @@ const format = winston.format.combine(
   )
 );
 
-const transports = [
+export const transports = [
   new winston.transports.Console(),
   new winston.transports.File({
     filename: "logs/error.log",
@@ -41,11 +41,9 @@ const transports = [
   new winston.transports.File({ filename: "logs/all.log" }),
 ];
 
-const logger = winston.createLogger({
+export const logger = winston.createLogger({
   level: level(),
   levels,
   format,
   transports,
 });
-
-module.exports = logger;

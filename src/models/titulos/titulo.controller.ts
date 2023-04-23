@@ -4,12 +4,6 @@ import { PrismaService } from "../../database/prisma.service";
 import { cleanCpf } from "../../functions/cpf";
 import { removeEmpty } from "../../functions/removeEmpty";
 
-interface Decoded {
-  login: string;
-  iat: number;
-  exp: number;
-}
-
 @Controller()
 export class TituloController {
   constructor(private prisma: PrismaService) {}
@@ -52,6 +46,16 @@ export class TituloController {
     });
 
     return titulo;
+  }
+
+  async verifyEC(createTituloDto: any): Promise<titulos[] | null> {
+    const titulo = await this.prisma.titulos.findFirst({
+      where: {
+        external_code: createTituloDto.external_code,
+      },
+    });
+
+    return [titulo];
   }
 
   async findFirstCic(createTituloDtoEc: any): Promise<login> {
@@ -127,7 +131,7 @@ export class TituloController {
           login: decoded.login,
         },
         situacao: {
-          not: "Pago",
+          not: "pago",
         },
         data_vencimento: {
           lte: new Date(),
@@ -154,8 +158,8 @@ export class TituloController {
     return titulo;
   }
 
-  async createTitulos(Decoded: any, createTituloDto: any): Promise<void> {
-    if (Decoded === undefined || createTituloDto === undefined) {
+  async createTitulos(createTituloDto: any): Promise<void> {
+    if (createTituloDto === undefined) {
       return null;
     }
 
@@ -173,11 +177,8 @@ export class TituloController {
         pix_codigo: createTituloDto.pix_codigo,
         pix_url: createTituloDto.pix_url,
         situacao: createTituloDto.situacao,
-        login: {
-          connect: {
-            login: Decoded.login,
-          },
-        },
+        login_id: Number(createTituloDto.login_id),
+        external_code: createTituloDto.external_code,
       },
     });
   }
@@ -242,11 +243,9 @@ export class TituloController {
 
     const expiredTitle = await this.prisma.titulos.findMany({
       where: {
-        login: {
-          login: decoded.login,
-        },
+        login: decoded.login,
         situacao: {
-          not: "pago",
+          in: ["acordo", "pendente", "vencido"],
         },
         data_vencimento: {
           lte: new Date(),
@@ -260,20 +259,31 @@ export class TituloController {
   async expiringTitulo(decoded: any): Promise<titulos[]> {
     const expiringTitle = await this.prisma.titulos.findMany({
       where: {
-        login: {
-          login: decoded.login,
-        },
+        login: decoded.login,
         situacao: {
-          not: "pago",
+          in: ["pendente", "acordo"],
         },
         data_vencimento: {
           gte: new Date(),
         },
       },
       take: 1, // número de títulos que você queira puxar
+      orderBy: {
+        data_vencimento: "asc",
+      },
     });
 
     return expiringTitle;
+  }
+
+  async deleteTituloForTests(external_code: string): Promise<titulos[]> {
+    await this.prisma.titulos.deleteMany({
+      where: {
+        external_code: external_code,
+      },
+    });
+
+    return;
   }
 
   // Outros métodos relacionados à títulos podem ser adicionados aqui

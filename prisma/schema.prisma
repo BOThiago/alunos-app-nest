@@ -9,6 +9,9 @@ datasource db {
 
 model login {
   id                             Int       @id @default(autoincrement())
+  guid                           String?   @unique @default(uuid())
+  pessoas                        pessoas?  @relation(fields: [id_pessoas], references: [id])
+  id_pessoas                     Int?      @unique
   login                          String    @unique
   password                       String
   change_password                Boolean?  @default(true)
@@ -19,20 +22,140 @@ model login {
   titulos                        titulos[]
   tokenRedefinicaoSenha          String?   @unique
   expiracaoTokenRedefinicaoSenha DateTime?
+  data_criacao                   DateTime? @default(now())
+  data_atualizacao               DateTime? @updatedAt
+
+  @@index([guid])
 }
 
 model titulos {
-  id              Int      @id @default(autoincrement())
-  valor           Float
-  data_vencimento DateTime
-  boleto_codigo   String?
-  boleto_url      String?
-  curso           String?
-  favorecido      String?
-  login_id        Int
-  pix_codigo      String?
-  pix_url         String?
-  situacao        String?
-  external_code   String?  @unique @db.VarChar(255)
-  login           login    @relation(fields: [login_id], references: [id])
+  id               Int          @id @default(autoincrement())
+  guid             String?      @unique @default(uuid())
+  pessoas          pessoas?     @relation(fields: [id_pessoas], references: [id])
+  id_pessoas       Int?
+  unidade_ies      unidade_ies? @relation(fields: [id_unidade_ies], references: [id])
+  id_unidade_ies   Int?
+  tipo_id_externo  String?      @db.VarChar(150)
+  id_externo       String?      @db.VarChar(150)
+  valor            Float
+  data_vencimento  DateTime
+  boleto_codigo    String?
+  boleto_url       String?
+  curso            String?
+  favorecido       String?
+  pix_codigo       String?
+  pix_url          String?
+  situacao         String?
+  external_code    String?      @unique @db.VarChar(255)
+  login            login        @relation(fields: [login_id], references: [id])
+  login_id         Int
+  data_criacao     DateTime?    @default(now())
+  data_atualizacao DateTime?    @updatedAt
+
+  @@index([guid])
+}
+
+model pessoas {
+  id                  Int                   @id @default(autoincrement())
+  guid                String                @unique @default(uuid())
+  id_externo          String?               @db.VarChar(150)
+  nome                String
+  enderecos           enderecos[]
+  emails              emails[]
+  titulos             titulos[]
+  telefones           telefones[]
+  login               login?
+  data_criacao        DateTime              @default(now())
+  data_atualizacao    DateTime              @updatedAt
+  unidade_ies_pessoas unidade_ies_pessoas[]
+
+  @@index([guid])
+}
+
+model unidade_ies_pessoas {
+  id             Int         @id @default(autoincrement())
+  guid           String      @unique @default(uuid())
+  pessoas        pessoas     @relation(fields: [id_pessoas], references: [id])
+  id_pessoas     Int
+  unidade_ies    unidade_ies @relation(fields: [id_unidade_ies], references: [id])
+  id_unidade_ies Int
+
+  @@index([guid])
+}
+
+model unidade_ies {
+  id                  Int                   @id @default(autoincrement())
+  guid                String                @unique @default(uuid())
+  ies                 ies                   @relation(fields: [id_ies], references: [id])
+  id_ies              Int
+  nome                String                @db.VarChar(100)
+  unidade_ies_pessoas unidade_ies_pessoas[]
+  titulos             titulos[]
+  data_criacao        DateTime              @default(now())
+  data_atualizacao    DateTime              @updatedAt
+
+  @@index([guid])
+}
+
+model ies {
+  id               Int           @id @default(autoincrement())
+  guid             String        @unique @default(uuid())
+  nome             String        @db.VarChar(100)
+  unidade_ies      unidade_ies[]
+  data_criacao     DateTime      @default(now())
+  data_atualizacao DateTime      @updatedAt
+
+  @@index([guid])
+}
+
+model enderecos {
+  id               Int      @id @default(autoincrement())
+  guid             String   @unique @default(uuid())
+  pessoas          pessoas  @relation(fields: [id_pessoas], references: [id])
+  id_pessoas       Int
+  cep              String   @db.VarChar(8)
+  logradouro       String   @db.VarChar(150)
+  numero           String   @db.VarChar(10)
+  complemento      String?  @db.VarChar(100)
+  bairro           String   @db.VarChar(50)
+  cidade           String   @db.VarChar(50)
+  uf               String   @db.VarChar(2)
+  ativo            Boolean
+  data_criacao     DateTime @default(now())
+  data_atualizacao DateTime @updatedAt
+
+  @@index([guid])
+}
+
+model emails {
+  id               Int       @id @default(autoincrement())
+  guid             String    @unique @default(uuid())
+  pessoas          pessoas   @relation(fields: [id_pessoas], references: [id])
+  id_pessoas       Int
+  contato          String    @db.VarChar(100)
+  validado         Boolean
+  ativo            Boolean
+  token_validacao  String?   @unique @db.VarChar(150)
+  token_expiracao  DateTime?
+  data_criacao     DateTime  @default(now())
+  data_atualizacao DateTime  @updatedAt
+
+  @@index([guid])
+}
+
+model telefones {
+  id               Int       @id @default(autoincrement())
+  guid             String    @unique @default(uuid())
+  pessoas          pessoas   @relation(fields: [id_pessoas], references: [id])
+  id_pessoas       Int
+  contato          String    @db.VarChar(100)
+  validado         Boolean
+  ativo            Boolean
+  whatsapp         Boolean   @default(false)
+  token_validacao  String?   @unique @db.VarChar(150)
+  token_expiracao  DateTime?
+  data_criacao     DateTime  @default(now())
+  data_atualizacao DateTime  @updatedAt
+
+  @@index([guid])
 }

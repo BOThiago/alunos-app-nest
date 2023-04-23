@@ -1,65 +1,123 @@
-import { Request, Response, NextFunction } from "express";
-import {
-  Controller,
-  Put,
-  Req,
-  Res,
-  BadRequestException,
-  HttpStatus,
-  UseGuards,
-} from "@nestjs/common";
-import { PrismaService } from "../../database/prisma.service";
+import { Controller, Res, UseGuards, Body, Post, Req } from "@nestjs/common";
 import { verifyCpf, cleanCpf } from "../../functions/cpf";
 import * as bcryptjs from "bcryptjs";
 import { JwtAuthGuard } from "../../auth/jwt-auth.guard";
+import { LoginService } from "../../models/login/login.service";
+import {
+  AddLoginDto,
+  UpdatePasswordDto,
+} from "../../models/dtos/addLogin/add-login-body";
+import { ApiBadRequestResponse, ApiCreatedResponse } from "@nestjs/swagger";
+import { verifyAndDecodeToken } from "src/functions/verifyExpiredToken";
 
 @Controller("login")
 export class LoginController {
-  constructor(private prisma: PrismaService) {}
+  constructor(private loginService: LoginService) {}
 
-  @Put()
+  @Post()
+  @ApiCreatedResponse({ description: `Usuário criado com sucesso!` })
+  @ApiBadRequestResponse({
+    description:
+      "É necessário os parâmetros de login, password, telefone, name e logradouro!",
+  })
   @UseGuards(JwtAuthGuard)
   async createUser(
-    @Req() req: Request,
-    @Res() res: Response,
-    next: NextFunction
+    @Body() addLoginDto: AddLoginDto,
+    @Res() res: any
   ): Promise<void> {
     try {
-      const { login, password, email, ies, message, name } = req.body;
-
-      if (!login || !password) {
-        throw new BadRequestException(
-          "É necessário os parâmetros de login e senha!"
-        );
+      if (
+        !addLoginDto.login ||
+        !addLoginDto.password ||
+        !addLoginDto.telefone ||
+        !addLoginDto.name ||
+        !addLoginDto.logradouro
+      ) {
+        return res.status(400).send({
+          message:
+            "É necessário os parâmetros de login, password, telefone, name e logradouro!",
+        });
       }
 
-      if (!verifyCpf(login)) {
-        res.status(HttpStatus.UNPROCESSABLE_ENTITY).send({
+      if (!verifyCpf(addLoginDto.login)) {
+        return res.status(400).send({
           message: "CPF inválido!",
         });
-        return;
       }
 
-      const hashedPassword = await bcryptjs.hash(password, 10);
+      const hashedPassword = await bcryptjs.hash(addLoginDto.password, 10);
 
-      await this.prisma.login.create({
-        data: {
-          login: cleanCpf(login),
-          password: hashedPassword,
-          change_password: true,
-          email,
-          ies,
-          message: message || "",
-          name,
-        },
-      });
+      const verifyCPF = await this.loginService.findByLogin(
+        cleanCpf(addLoginDto.login)
+      );
 
-      res.status(HttpStatus.OK).send({
-        message: `Usuário ${email} criado com sucesso!`,
+      if (verifyCPF !== null) {
+        return res.status(409).send({
+          message: `CPF já cadastrado!`,
+        });
+      }
+
+      if (addLoginDto.email) {
+        const verifyEmail = await this.loginService.findByEmail(
+          addLoginDto.email
+        );
+
+        if (verifyEmail !== null) {
+          return res.status(409).send({
+            message: `E-mail já cadastrado!`,
+          });
+        }
+        await this.loginService.createLogin(addLoginDto, hashedPassword);
+        return res.status(200).send({
+          message: `Usuário ${addLoginDto.login} criado com sucesso!`,
+        });
+      } else {
+        await this.loginService.createLogin(addLoginDto, hashedPassword);
+
+        return res.status(200).send({
+          message: `Usuário ${addLoginDto.login} criado com sucesso!`,
+        });
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  @Post()
+  @ApiCreatedResponse({ description: `Usuário criado com sucesso!` })
+  @ApiBadRequestResponse({
+    description:
+      "É necessário os parâmetros de login, password, telefone, name e logradouro!",
+  })
+  @UseGuards(JwtAuthGuard)
+  async resetPassword(
+    @Body() updatePasswordDto: UpdatePasswordDto,
+    @Res() res: any,
+    @Req() req: any
+  ): Promise<void> {
+    try {
+      const token = String(req.headers["x-access-token"]);
+      const decoded = verifyAndDecodeToken(token, res);
+
+      if (!updatePasswordDto.login || !updatePasswordDto.password) {
+        return res.status(400).json({
+          message: "É necessário os parâmetros de login e password!",
+        });
+      }
+
+      const hashedPassword = await bcryptjs.hash(
+        updatePasswordDto.password,
+        10
+      );
+
+      await this.loginService.updatePassword(decoded.login, hashedPassword);
+
+      res.status(200).json({
+        message: "Senha do usuário " + updatePasswordDto.login + " alterada!",
       });
     } catch (err) {
       console.log(err);
-      next(err);
+      res.status(500).json("Não foi possível alterar a senha!" + err);
     }
   }
 }

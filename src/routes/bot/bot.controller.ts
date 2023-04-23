@@ -1,26 +1,27 @@
-import { Controller, Get, Req, Res, UseGuards } from "@nestjs/common";
+import { Controller, Get, Param, Req, Res, UseGuards } from "@nestjs/common";
 import { JwtAuthGuard } from "../../auth/jwt-auth.guard";
 import { verifyAndDecodeToken } from "../../functions/verifyExpiredToken";
 import { LoginService } from "../../models/login/login.service";
 import { TituloController } from "../../models/titulos/titulo.controller";
 import JSONbig from "json-bigint";
 
-@Controller("/:cic/proximo_titulo")
+@Controller(":cic")
 export class BotController {
-  TituloController: any;
   constructor(
     private loginService: LoginService,
     private tituloController: TituloController
   ) {}
 
   @UseGuards(JwtAuthGuard)
-  @Get("/")
-  async findPayTitulos(@Req() req: any, @Res() res: any): Promise<void> {
+  @Get("proximo_titulo")
+  async findPayTitulos(
+    @Req() req: any,
+    @Res() res: any,
+    @Param("cic") cic: string
+  ): Promise<void> {
     try {
       const token = String(req.headers["x-access-token"]);
-      const decoded = verifyAndDecodeToken(token, res);
-
-      const { cic } = req.params;
+      verifyAndDecodeToken(token, res);
 
       const login = await this.loginService.findByCic(cic);
 

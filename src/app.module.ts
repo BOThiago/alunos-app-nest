@@ -1,3 +1,15 @@
+import { AddressModelModule } from "./models/address/address-model.module";
+import { AddressModelController } from "./models/address/address-model.controller";
+import { EmailModelModule } from "./models/emails/email-model.module";
+import { EmailModelController } from "./models/emails/email-model.controller";
+import { UserModelModule } from "./models/user/user-model.module";
+import { UserModelController } from "./models/user/user-model.controller";
+import { UserModule } from "./routes/user/user.module";
+import { SendEmailModule } from "./routes/sendEmail/send-email.module";
+import { SendEmailController } from "./routes/sendEmail/send-email.controller";
+import { RecoverPasswordModule } from "./routes/recoverPassword/recover-password.module";
+import { RecoverPasswordController } from "./routes/recoverPassword/recover-password.controller";
+import { PasswordModule } from "./routes/password/password.module";
 import { PasswordController } from "./routes/password/password.controller";
 import { BotModule } from "./routes/bot/bot.module";
 import { BotController } from "./routes/bot/bot.controller";
@@ -6,7 +18,6 @@ import { TitulosVencidosController } from "./routes/titulos-vencidos/titulos-ven
 import { TitulosPagosModule } from "./routes/titulos-pagos/titulos-pagos.module";
 import { TitulosPagosController } from "./routes/titulos-pagos/titulos-pagos.controller";
 import { SigninModule } from "./routes/signin/signin.module";
-import { UserModule } from "./models/login/login.module";
 import { LoginService } from "./models/login/login.service";
 import { AuthService } from "./auth/auth.service";
 import { Module } from "@nestjs/common";
@@ -24,9 +35,16 @@ import { SigninController } from "./routes/signin/signin.controller";
 import { JwtService } from "@nestjs/jwt";
 import { TituloModule } from "./models/titulos/titulo.module";
 import { TituloController } from "./models/titulos/titulo.controller";
+import { UserController } from "./routes/user/user.controller";
 
 @Module({
   imports: [
+    AddressModelModule,
+    EmailModelModule,
+    UserModelModule,
+    SendEmailModule,
+    RecoverPasswordModule,
+    PasswordModule,
     BotModule,
     TitulosVencidosModule,
     TitulosPagosModule,
@@ -39,6 +57,12 @@ import { TituloController } from "./models/titulos/titulo.controller";
     TituloModule,
   ],
   controllers: [
+    AddressModelController,
+    EmailModelController,
+    UserController,
+    UserModelController,
+    SendEmailController,
+    RecoverPasswordController,
     PasswordController,
     BotController,
     TitulosVencidosController,

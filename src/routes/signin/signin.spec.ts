@@ -5,8 +5,8 @@ import { AppModule } from "../../app.module";
 import {
   validLogin,
   invalidLogin,
-  validPassword,
   invalidPassword,
+  validPassword,
 } from "../../test/variaveis";
 
 describe("AuthController (e2e)", () => {

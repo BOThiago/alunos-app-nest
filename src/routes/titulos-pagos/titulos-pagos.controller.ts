@@ -16,7 +16,7 @@ export class TitulosPagosController {
       const decoded = verifyAndDecodeToken(token, res);
 
       const findPayTitulos = await this.tituloController.findPayTitulos(
-        decoded
+        decoded.login
       );
 
       if (findPayTitulos.length < 1) {

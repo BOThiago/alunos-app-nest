@@ -30,7 +30,12 @@ export class AuthService {
       };
     }
 
-    const payload = { login: user.login };
+    const payload = {
+      login: user.login,
+      userID: user.id, // Assumindo que o usuário tem uma propriedade "id"
+      guid: user.guid, // Assumindo que o usuário tem uma propriedade "guid"
+      ies: user.ies,
+    };
     const userData = [
       user.login,
       user.email,
@@ -42,13 +47,10 @@ export class AuthService {
     return {
       success: true,
       userData,
-      access_token: this.jwtService.sign(
-        { login: payload.login },
-        {
-          secret: process.env.KEYSECRET,
-          expiresIn: process.env.TIMETOKEN,
-        }
-      ),
+      access_token: this.jwtService.sign(payload, {
+        secret: process.env.KEYSECRET,
+        expiresIn: process.env.TIMETOKEN,
+      }),
       expiresIn: process.env.TIMETOKEN,
     };
   }

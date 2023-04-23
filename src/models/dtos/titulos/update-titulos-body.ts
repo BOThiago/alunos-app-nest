@@ -1,4 +1,4 @@
-export interface updateTituloDto {
+export class updateTituloDto {
   valor: Number;
   data_vencimento: Date;
   boleto_codigo: string;

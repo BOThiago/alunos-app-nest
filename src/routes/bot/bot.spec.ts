@@ -10,7 +10,7 @@ import {
   validCicWithDontHaveTitulos,
 } from "../../test/variaveis";
 
-describe("TitulosController (e2e)", () => {
+describe("BotController (e2e)", () => {
   let app: INestApplication;
 
   beforeEach(async () => {

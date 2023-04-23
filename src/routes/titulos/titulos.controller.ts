@@ -11,6 +11,10 @@ import {
   InternalServerErrorException,
   Param,
 } from "@nestjs/common";
+import {
+  CreateTituloDto,
+  CreateTituloDtoEc,
+} from "../../models/dtos/titulos/create-titulos-body";
 import { AuthService } from "../../auth/auth.service";
 import { JwtAuthGuard } from "../../auth/jwt-auth.guard";
 import { removeEmpty } from "../../functions/removeEmpty";
@@ -18,6 +22,7 @@ import JSONbig from "json-bigint";
 import { verifyAndDecodeToken } from "../../functions/verifyExpiredToken";
 import { TituloController } from "../../models/titulos/titulo.controller";
 import { LoginService } from "./../../models/login/login.service";
+import { updateTituloDto } from "../../models/dtos/titulos/update-titulos-body";
 
 @Controller("titulos")
 export class TitulosController {
@@ -32,6 +37,8 @@ export class TitulosController {
     try {
       const token = String(req.headers["x-access-token"]);
       const decoded = verifyAndDecodeToken(token, res);
+
+      console.log(decoded);
 
       const findTitle = await this.tituloController.findTitulos(decoded);
 
@@ -55,35 +62,32 @@ export class TitulosController {
   @UseGuards(AuthService)
   @Post("/")
   async createTitulo(
-    @Body() createTituloDto,
+    @Body() createTituloDto: CreateTituloDto,
     @Req() req: any,
     @Res() res: any
   ) {
     try {
       const token = String(req.headers["x-access-token"]);
-      const decoded = verifyAndDecodeToken(token, res);
+      verifyAndDecodeToken(token, res);
 
-      if (
-        !createTituloDto.login_id ||
-        !createTituloDto.valor ||
-        !createTituloDto.data_vencimento ||
-        !createTituloDto.external_code
-      ) {
-        res.status(HttpStatus.BAD_REQUEST).json({
-          message: "Falta preencher os campos obrigatórios!",
+      const verifyUser = await this.loginService.findByID(
+        Number(createTituloDto.login_id)
+      );
+
+      if (verifyUser === null) {
+        return res.json({ message: "Usuário não encontrado!" }).status(432);
+      }
+
+      const verifyEC = await this.tituloController.verifyEC(createTituloDto);
+
+      if (verifyEC[0] !== null) {
+        return res.status(409).json({
+          message: "External code já existente!",
         });
       } else {
-        const verifyUser = await this.loginService.findByLogin(decoded.login);
+        await this.tituloController.createTitulos(createTituloDto);
 
-        if (!verifyUser) {
-          res.status(HttpStatus.NOT_FOUND).json({
-            message: "Usuário não encontrado!",
-          });
-        }
-
-        await this.tituloController.createTitulos(decoded, createTituloDto);
-
-        return res.status(HttpStatus.CREATED).json({
+        return res.status(200).json({
           message: "Título adicionado com sucesso!",
         });
       }
@@ -98,11 +102,14 @@ export class TitulosController {
   @UseGuards(JwtAuthGuard)
   @Put("/")
   async updateTitulos(
-    @Body() updateTituloDto: any,
-    @Res() res,
-    @Req() req
+    @Body() updateTituloDto: updateTituloDto,
+    @Res() res: any,
+    @Req() req: any
   ): Promise<void> {
     try {
+      const token = String(req.headers["x-access-token"]);
+      verifyAndDecodeToken(token, res);
+
       if (!updateTituloDto.external_code) {
         res.status(HttpStatus.BAD_REQUEST).json({
           message: "Falta preencher os campos obrigatórios!",
@@ -138,7 +145,9 @@ export class TitulosController {
       const token = String(req.headers["x-access-token"]);
       const decoded = verifyAndDecodeToken(token, res);
 
-      const expiredTitle = await this.tituloController.expiredTitulo(decoded);
+      const expiredTitle = await this.tituloController.expiredTitulo(
+        decoded.login
+      );
 
       if (expiredTitle.length > 0) {
         return res
@@ -148,7 +157,7 @@ export class TitulosController {
 
       if (expiredTitle.length < 1) {
         const expiringTitle = await this.tituloController.expiringTitulo(
-          decoded
+          decoded.login
         );
 
         if (expiringTitle.length > 0) {
@@ -180,7 +189,10 @@ export class TitulosController {
     try {
       const token = String(req.headers["x-access-token"]);
       const decoded = verifyAndDecodeToken(token, res);
-      const findTitle = await this.tituloController.findTitulo(decoded, id);
+      const findTitle = await this.tituloController.findTitulo(
+        decoded.login,
+        id
+      );
 
       if (!findTitle) {
         return res
@@ -201,7 +213,11 @@ export class TitulosController {
 
   @UseGuards(JwtAuthGuard)
   @Put("/relaxed")
-  async updateTitulo(@Req() req, @Res() res, @Body() createTituloDtoEc) {
+  async updateTitulo(
+    @Req() req: any,
+    @Res() res: any,
+    @Body() createTituloDtoEc: CreateTituloDtoEc
+  ) {
     try {
       const token = String(req.headers["x-access-token"]);
       const decoded = verifyAndDecodeToken(token, res);
@@ -238,7 +254,7 @@ export class TitulosController {
 
       titulo = await this.tituloController.findTitulosExpired(
         createTituloDtoEc,
-        decoded
+        decoded.login
       );
 
       if (!titulo) {
